@@ -1,385 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Egg Tracker Bot – Track your hatched eggs on Discord</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="Egg Tracker Bot is a Discord bot that tracks all your hatched eggs, shows visual cards, daily recaps and lifetime stats."
-  />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1d243a, #020617 55%);
-      color: #e5e7eb;
-      line-height: 1.6;
-    }
-    a { color: inherit; text-decoration: none; }
-    code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-
-    .page {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 1.5rem;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0 1.25rem;
-    }
-    .logo {
-      font-weight: 800;
-      font-size: 1.4rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-    nav a {
-      font-size: 0.9rem;
-      margin-left: 1rem;
-      opacity: 0.8;
-    }
-    nav a:hover { opacity: 1; }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.5);
-      color: #bfdbfe;
-      margin-bottom: 0.75rem;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-      gap: 2rem;
-      align-items: center;
-      padding: 1.5rem 0 2.5rem;
-    }
-    @media (max-width: 800px) {
-      .hero { grid-template-columns: 1fr; }
-    }
-    .hero h1 {
-      font-size: 2.4rem;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
-    .hero p {
-      font-size: 0.98rem;
-      opacity: 0.9;
-      margin-bottom: 1.25rem;
-    }
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.4rem;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, border-color 0.12s ease;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #22c55e, #6366f1);
-      color: white;
-      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45);
-    }
-    .btn-primary:hover { transform: translateY(-1px); }
-    .btn-ghost {
-      background: transparent;
-      border-color: rgba(148, 163, 184, 0.7);
-      color: #e5e7eb;
-    }
-    .btn-ghost:hover {
-      background: rgba(15, 23, 42, 0.9);
-      transform: translateY(-1px);
-    }
-    .hero-meta {
-      font-size: 0.8rem;
-      opacity: 0.75;
-    }
-
-    .card-preview {
-      border-radius: 1.25rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background:
-        radial-gradient(circle at top left, rgba(59, 130, 246, 0.45), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.35), transparent 55%),
-        #020617;
-      padding: 1.5rem;
-      position: relative;
-      min-height: 220px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .egg-thumb {
-      position: absolute;
-      right: 1.2rem;
-      top: 1.2rem;
-      width: 64px;
-      height: 64px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 20% 20%, #fef3c7, #f97316);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.9rem;
-      color: #0f172a;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
-    }
-    .card-badge {
-      display: inline-flex;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: rgba(15, 23, 42, 0.95);
-    }
-    .card-title {
-      margin-top: 0.7rem;
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-    .card-lines {
-      margin-top: 0.4rem;
-      font-size: 0.9rem;
-    }
-    .card-lines span {
-      display: block;
-    }
-    .card-footer {
-      margin-top: 1rem;
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-
-    section {
-      padding: 1.75rem 0;
-      border-top: 1px solid rgba(15, 23, 42, 0.9);
-    }
-    h2 {
-      font-size: 1.3rem;
-      margin-bottom: 0.75rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.25rem;
-    }
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-    .feature {
-      padding: 1rem;
-      border-radius: 1rem;
-      border: 1px solid rgba(30, 64, 175, 0.8);
-      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.22), transparent 60%);
-      font-size: 0.9rem;
-    }
-    .feature strong { display: block; margin-bottom: 0.3rem; }
-
-    .ads-box {
-      margin: 1.5rem 0;
-      padding: 1rem;
-      border-radius: 0.75rem;
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-      font-size: 0.8rem;
-      color: #9ca3af;
-      text-align: center;
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    footer {
-      padding: 1.5rem 0 0.5rem;
-      font-size: 0.8rem;
-      opacity: 0.7;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>HatchTracker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="logo">Egg Tracker Bot</div>
-      <nav>
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#support">Support</a>
-      </nav>
-    </header>
+<header>
+  <div class="logo">HatchTracker</div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#tutorial">Tutorial</a>
+    <a href="#updates">Updates</a>
+  </nav>
+</header>
 
-    <main>
-      <!-- HERO -->
-      <section class="hero">
-        <div>
-          <div class="badge">Discord bot · AFK egg tracking</div>
-          <h1>Track every egg you hatch on Discord.</h1>
-          <p>
-            Egg Tracker Bot reads your log channel and builds live stats for all your egg types
-            (Paradise, Safari, Mythical, Legendary, and more). Get visual cards, daily recaps and
-            lifetime stats for your AFK sessions.
-          </p>
+<section class="hero">
+  <h1>HatchTracker</h1>
+  <p>The ultimate egg tracking Discord bot</p>
+  <a class="invite" href="YOUR_INVITE_LINK_HERE">Install bot on your Discord</a>
+</section>
 
-          <div class="buttons">
-            <!-- 👉 REMPLACE ICI PAR TON LIEN D'INVITE DU BOT 👇 -->
-            <a
-              class="btn btn-primary"
-              href="https://discord.com/oauth2/authorize?client_id=1437512457060090109&permissions=274878187520&scope=bot%20applications.commands"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Install bot on your server
-            </a>
-            <a class="btn btn-ghost" href="#how">
-              View tutorial
-            </a>
-          </div>
+<section id="about">
+  <h2>About the bot</h2>
+  <p>Track all eggs hatched on your server with precision.</p>
+</section>
 
-          <div class="hero-meta">
-            No account needed. Just invite the bot, run <code>/eggsetup</code>, and start counting eggs.
-          </div>
-        </div>
+<section id="tutorial">
+  <h2>How to use</h2>
+  <p>Full tutorial here...</p>
+</section>
 
-        <!-- CARD PREVIEW -->
-        <div class="card-preview">
-          <div class="egg-thumb">EGG</div>
-          <div>
-            <div class="card-badge">Example result</div>
-            <div class="card-title">Paradise eggs hatched</div>
-            <div class="card-lines">
-              <span>This period: <strong>437</strong> (raw: 263)</span>
-              <span>Lifetime: <strong>3 214</strong> (raw: 1 936)</span>
-              <span style="font-size:0.8rem; opacity:0.8;">Loss multiplier: x1.66</span>
-            </div>
-          </div>
-          <div class="card-footer">
-            Data is computed directly from your Discord log channel.  
-            You control which channel is scanned with <code>/eggsetup</code>.
-          </div>
-        </div>
-      </section>
+<section id="updates">
+  <h2>Updates</h2>
+  <p>Latest updates will appear here.</p>
+</section>
 
-      <!-- ADS PLACEHOLDER -->
-      <div class="ads-box">
-        Ad zone
-      </div>
-
-      <!-- FEATURES -->
-      <section id="features">
-        <h2>Why use Egg Tracker Bot?</h2>
-        <div class="grid">
-          <div class="feature">
-            <strong>Multiple egg types</strong>
-            Paradise, Safari, Mythical, Bug, Legendary, Enchanted, Rare Summer, Common, Rare, Fall,
-            Jungle, Common Summer, Bee, Gem… all tracked in one place.
-          </div>
-          <div class="feature">
-            <strong>Visual cards</strong>
-            Each query returns a Discord embed with a clean layout: title, period stats, lifetime
-            stats, and a thumbnail for the selected egg type.
-          </div>
-          <div class="feature">
-            <strong>Daily recap</strong>
-            Use <code>/dailyrecap</code> to see how many eggs you opened today, broken down by egg
-            type, with your loss multiplier applied.
-          </div>
-          <div class="feature">
-            <strong>Loss multiplier</strong>
-            Some games don't send 100% of logs. Adjust with a loss multiplier (for example x1.66),
-            or simply set it to <strong>x1.0</strong> if you want raw numbers only.
-          </div>
-          <div class="feature">
-            <strong>Per-server config</strong>
-            Each server can configure its own log channel, timezone and multiplier with
-            <code>/eggsetup</code>. Perfect for friends and communities.
-          </div>
-          <div class="feature">
-            <strong>Privacy-friendly</strong>
-            The bot only reads one chosen log channel and computes stats. No external account
-            needed.
-          </div>
-        </div>
-      </section>
-
-      <!-- HOW IT WORKS -->
-      <section id="how">
-        <h2>How it works</h2>
-        <p style="font-size:0.9rem; opacity:0.9; margin-bottom:0.4rem;">
-          1. Click <strong>“Install bot on your server”</strong> and invite Egg Tracker Bot
-          with <code>bot</code> + <code>applications.commands</code> scopes.
-        </p>
-        <p style="font-size:0.9rem; opacity:0.9; margin-bottom:0.4rem;">
-          2. Create (or choose) a text channel where your game/webhook sends egg hatch messages
-          (e.g. <code>#egg-logs</code>).
-        </p>
-        <p style="font-size:0.9rem; opacity:0.9; margin-bottom:0.4rem;">
-          3. Run <code>/eggsetup</code> (admin only) to:
-        </p>
-        <ul style="font-size:0.9rem; opacity:0.9; margin-left:1.2rem; margin-bottom:0.4rem;">
-          <li>Select the log channel</li>
-          <li>Set your timezone offset</li>
-          <li>Set your loss multiplier (x1.0 if you don't want any correction)</li>
-        </ul>
-        <p style="font-size:0.9rem; opacity:0.9; margin-bottom:0.4rem;">
-          4. Use <code>/egg</code> to query stats:
-        </p>
-        <ul style="font-size:0.9rem; opacity:0.9; margin-left:1.2rem; margin-bottom:0.4rem;">
-          <li><code>/egg egg_type:paradise period:today</code></li>
-          <li><code>/egg egg_type:mythical period:24h</code></li>
-          <li><code>/egg egg_type:all period:2d</code></li>
-        </ul>
-        <p style="font-size:0.9rem; opacity:0.9;">
-          5. Use <code>/dailyrecap</code> to get a summary of today's eggs (all types) in one card.
-        </p>
-      </section>
-
-      <!-- SUPPORT -->
-      <section id="support">
-        <h2>Support the project</h2>
-        <p style="font-size:0.9rem; opacity:0.9; margin-bottom:0.45rem;">
-          Hosting the bot 24/7 costs a few euros per month. If Egg Tracker Bot helps you track your
-          AFK sessions, you can support the project:
-        </p>
-        <ul style="font-size:0.9rem; opacity:0.9; margin-left:1.2rem; margin-bottom:0.45rem;">
-          <li>
-            ☕ <strong>Buy me a coffee</strong>:
-            <a href="paypal.me/julienauvinetplay" target="_blank" rel="noopener noreferrer">
-              support link
-            </a>
-          </li>
-          <li>
-            🔗 Optional: use a rewarded link if you really want to boost the project.
-          </li>
-        </ul>
-        <p style="font-size:0.8rem; opacity:0.75;">
-          Donations are 100% optional. The bot stays free to invite and use.
-        </p>
-      </section>
-    </main>
-
-    <footer>
-      Egg Tracker Bot · Unofficial fan-made tool · Not affiliated with any game publisher.
-    </footer>
-  </div>
+<footer>
+  <p>© 2025 HatchTracker</p>
+</footer>
 </body>
 </html>
